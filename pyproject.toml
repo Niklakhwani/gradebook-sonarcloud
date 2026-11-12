@@ -1,0 +1,13 @@
+[project]
+name = "gradebook"
+version = "1.0.0"
+description = "Small library for recording, grading and exporting student marks"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
