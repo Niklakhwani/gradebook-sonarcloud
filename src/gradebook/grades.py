@@ -103,3 +103,18 @@ def classify_students(students):
     for student in students:
         groups[_standing(student)].append(student["name"])
     return groups
+
+
+def rank_students(students):
+    """Return student names ordered from highest to lowest average."""
+    try:
+        ranked = []
+        for student in students:
+            if len(student["scores"]) > 0:
+                ranked.append((sum(student["scores"]) / len(student["scores"]), student["name"]))
+            else:
+                ranked.append((0, student["name"]))
+        ranked.sort(reverse=True)
+        return [f"{name} ({letter_grade(avg, True)})" for avg, name in ranked]
+    except:
+        return []
