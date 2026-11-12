@@ -6,3 +6,4 @@ coverage.xml
 .scannerwork/
 .venv/
 .env
+test-results.xml
