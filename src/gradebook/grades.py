@@ -53,39 +53,50 @@ def parse_score(raw):
     return value
 
 
+HONOURS = "honours"
+PASS = "pass"
+PROBATION = "probation"
+FAIL = "fail"
+
+HIGH_AVERAGE = 80
+PASS_AVERAGE = 50
+EXCELLENT_ATTENDANCE = 90
+MIN_ATTENDANCE = 75
+
+
+def _high_average_standing(attendance):
+    """Standing for a student whose average is at or above HIGH_AVERAGE."""
+    if attendance is None:
+        return PASS
+    if attendance >= EXCELLENT_ATTENDANCE:
+        return HONOURS
+    if attendance >= MIN_ATTENDANCE:
+        return PASS
+    return PROBATION
+
+
+def _standing(student):
+    """Return the standing bucket name for a single student."""
+    scores = student.get("scores")
+    if not scores:
+        return FAIL
+    avg = sum(scores) / len(scores)
+    attendance = student.get("attendance")
+    if avg >= HIGH_AVERAGE:
+        return _high_average_standing(attendance)
+    if avg >= PASS_AVERAGE:
+        low_attendance = attendance is not None and attendance < MIN_ATTENDANCE
+        return PROBATION if low_attendance else PASS
+    excellent = attendance is not None and attendance >= EXCELLENT_ATTENDANCE
+    return PROBATION if excellent else FAIL
+
+
 def classify_students(students):
     """Group students into honours / pass / probation / fail buckets.
 
     Each student is a dict with keys 'name', 'scores' and optional 'attendance'.
     """
-    groups = {"honours": [], "pass": [], "probation": [], "fail": []}
+    groups = {HONOURS: [], PASS: [], PROBATION: [], FAIL: []}
     for student in students:
-        if student.get("scores"):
-            avg = sum(student["scores"]) / len(student["scores"])
-            if avg >= 80:
-                if student.get("attendance") is not None:
-                    if student["attendance"] >= 90:
-                        groups["honours"].append(student["name"])
-                    else:
-                        if student["attendance"] >= 75:
-                            groups["pass"].append(student["name"])
-                        else:
-                            groups["probation"].append(student["name"])
-                else:
-                    groups["pass"].append(student["name"])
-            elif avg >= 50:
-                if student.get("attendance") is not None and student["attendance"] < 75:
-                    groups["probation"].append(student["name"])
-                else:
-                    groups["pass"].append(student["name"])
-            else:
-                if student.get("attendance") is not None:
-                    if student["attendance"] >= 90:
-                        groups["probation"].append(student["name"])
-                    else:
-                        groups["fail"].append(student["name"])
-                else:
-                    groups["fail"].append(student["name"])
-        else:
-            groups["fail"].append(student["name"])
+        groups[_standing(student)].append(student["name"])
     return groups
