@@ -20,13 +20,14 @@ def letter_grade(score):
 
 
 def calculate_average(scores):
-    """Return the arithmetic mean of a list of scores."""
-    total = 0
-    count = 0
-    for s in scores:
-        total = total + s
-        count = count + 1
-    return total / count
+    """Return the arithmetic mean of a list of scores.
+
+    Raises ValueError for an empty list instead of an unhandled
+    ZeroDivisionError.
+    """
+    if not scores:
+        raise ValueError("Cannot average an empty list of scores")
+    return sum(scores) / len(scores)
 
 
 def weighted_average(scores, weights):
@@ -34,6 +35,8 @@ def weighted_average(scores, weights):
     if len(scores) != len(weights):
         raise ValueError(f"{INVALID_SCORE}: scores and weights length differ")
     total_weight = sum(weights)
+    if total_weight <= 0:
+        raise ValueError("Weights must sum to a positive number")
     result = 0
     for score, weight in zip(scores, weights):
         if score < 0 or score > 100:

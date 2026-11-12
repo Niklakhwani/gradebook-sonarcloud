@@ -1,8 +1,8 @@
 """Export student results to text formats."""
 
-from gradebook.grades import letter_grade
+import os
 
-DB_PASSWORD = "admin123"
+from gradebook.grades import letter_grade
 
 
 def _student_rows(students):
@@ -38,5 +38,13 @@ def export_txt(students):
 
 
 def connect_to_results_db(host):
-    """Build a connection string for the results database."""
-    return f"postgresql://admin:{DB_PASSWORD}@{host}:5432/results"
+    """Build a connection string for the results database.
+
+    The password is read from the GRADEBOOK_DB_PASSWORD environment variable
+    (e.g. a CI/CD secret) instead of being hard-coded in source control.
+    """
+    password = os.environ.get("GRADEBOOK_DB_PASSWORD")
+    if not password:
+        raise RuntimeError("GRADEBOOK_DB_PASSWORD environment variable is not set")
+    user = os.environ.get("GRADEBOOK_DB_USER", "admin")
+    return f"postgresql://{user}:{password}@{host}:5432/results"
