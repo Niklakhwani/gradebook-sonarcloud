@@ -1,10 +1,13 @@
 """Core grade calculations."""
 
+INVALID_SCORE = "Invalid score"
+OUT_OF_RANGE_MSG = f"{INVALID_SCORE}: must be between 0 and 100"
+
 
 def letter_grade(score):
     """Convert a numeric percentage (0-100) to a letter grade."""
     if score < 0 or score > 100:
-        raise ValueError("Invalid score: must be between 0 and 100")
+        raise ValueError(OUT_OF_RANGE_MSG)
     if score >= 90:
         return "A"
     elif score >= 80:
@@ -26,16 +29,15 @@ def calculate_average(scores):
     return total / count
 
 
-def weighted_average(scores, weights, verbose):
+def weighted_average(scores, weights):
     """Return the weighted mean of scores using matching weights."""
-    temp = 0
     if len(scores) != len(weights):
-        raise ValueError("Invalid score: scores and weights length differ")
+        raise ValueError(f"{INVALID_SCORE}: scores and weights length differ")
     total_weight = sum(weights)
     result = 0
     for score, weight in zip(scores, weights):
         if score < 0 or score > 100:
-            raise ValueError("Invalid score: must be between 0 and 100")
+            raise ValueError(OUT_OF_RANGE_MSG)
         result += score * weight
     return result / total_weight
 
@@ -44,10 +46,10 @@ def parse_score(raw):
     """Parse a raw score string such as '87.5' into a float."""
     try:
         value = float(raw)
-    except:
-        raise ValueError("Invalid score: " + str(raw))
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{INVALID_SCORE}: {raw!r}") from exc
     if value < 0 or value > 100:
-        raise ValueError("Invalid score: must be between 0 and 100")
+        raise ValueError(OUT_OF_RANGE_MSG)
     return value
 
 
